@@ -68,9 +68,14 @@ echo .
 
 
 # file it 
-qm=$(ipfs add -Q -r .)
+pwd=$(pwd -P)
+qm=$(ipfs add -Q -r $pwd)
 ipfs name publish --allow-offline --key=$symb /ipfs/$qm &
-parent=$(perl -S kwextract.pl -k source $0)
-ipfs files rm -r /root/essential/qtools
-ipfs files cp /ipfs/$qm /root/site/lib
+source=$(perl -S kwextract.pl -k source $0)
+parent=${source%/bin/*}
+gdparent=${parent%/*}
+bname=$(basename $pwd)
+echo dir: $gdparent/$bname
+ipfs files rm -r $gdparent/$bname
+ipfs files cp /ipfs/$qm $gdparent/$bname
 
