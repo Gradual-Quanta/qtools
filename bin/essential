@@ -38,13 +38,13 @@ echo "gituser: $(git config user.name) <$(git config user.email)>"
 tag=$(echo -n "$user@gradual.gq" | ipfs add -Q --raw-leaves --hash id --cid-base=base58btc)
 
 if IFS='' read -d '' msg <<EOT ; then true; fi
-$ver $time: ${1:-make it essential} on $date ~ $firstname $lni.
-gitid: $gitid
+$ver: '$time -- ${1:-make it essential} on $date ~ $firstname $lni.'
+gitid: $gitid # (parent)
 qm: $qm
 tag: $tag
 EOT
 
-echo "msg: $msg"  | sed -e '2,$s/^/  /' | tee RELEASE_NOTE.txt
+echo "msg: $msg"  | tee RELEASE_NOTE.txt | sed -e '2,$s/^/  /'
 #exit -$$
 
 if git commit -a -m "$msg"; then
@@ -81,6 +81,6 @@ ipfs files mkdir -p $gdparent
 fi
 if ipfs files rm -r $gdparent/$bname; then true; fi
 ipfs files cp /ipfs/$qm $gdparent/$bname
-apiport=(ipfs config Addresses.API | cut -d'/' -f5)
-echo url: http://128.0.0.1:$apiport/webui/#/files$gdparent/$bname
+apiport=$(ipfs config Addresses.API | cut -d'/' -f5)
+echo url: http://127.0.0.1:$apiport/webui/#/files$gdparent/$bname
 
