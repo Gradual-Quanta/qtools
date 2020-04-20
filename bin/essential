@@ -41,11 +41,14 @@ fi
 tag=$(perl -S fullname.pl -email $key | ipfs add -Q --raw-leaves --hash id --cid-base=base58btc | cut -c-35)
 
 if [ -e _data/version.yml ]; then
- sed -i -e "s,qm: .*,qm: $qm," _data/ipfs.yml
  sed -i -e "s,version: .*,version: $ver," \
+     -e "s,parent: .*,parent: $gitid," \
      -e "s,tic: .*,tic: $tic," \
      -e "s,name: .*,name: $firstname," \
      -e "s,tag: .*,tag: $tag," _data/version.yml
+fi
+if [ -e _data/ipfs.yml ]; then
+ sed -i -e "s,qm: .*,qm: $qm," _data/ipfs.yml
 fi
 
 if IFS='' read -d '' msg <<EOT ; then true; fi
@@ -55,13 +58,16 @@ qm: $qm
 tag: $tag
 EOT
 
-echo -e "Release: \"$ver $date\"\n$msg"  | tee RELEASE_NOTE.txt | sed -e '2,$s/^/  /'
+echo -e "Release: \"$ver $date\"\n$msg"  | tee RELEASE_NOTES.txt | sed -e '2,$s/^/  /'
 #exit -$$
 
 if git commit -a -m "$msg"; then
 commitid=$(git rev-parse HEAD)
 git tag -f -a $ver -m "tagging $commitid on $date"
 echo commitid: $commitid | cut -b 1-14
+if test -e _data/version.yml; then
+sed -i -e "s,parent: .*,parent: $gitid," _data/version.yml
+fi
 if test -e revs.log; then
 echo $tic: $commitid >> revs.log
 else
