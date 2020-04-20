@@ -19,31 +19,26 @@ fi
 
 tic=$(date +%s)
 time=$(date +%T)
-date=$(date +%D)
+date=$(date +%Y-%m-%d)
 qm=$(ipfs add -Q -r .)
 
 gitid=$(git rev-parse --short HEAD)
 ver=$(version $0 | xyml scheduled)
 
 echo "${tic}: $qm" >> qm.log
-if [ -e _data/version.yml ]; then
- sed -i -e "s,qm: .*,qm: $qm," _data/ipfs.yml
- sed -i -e "s,version: .*,version: $ver," _data/version.yml
-fi
-if ! ipfs key list | grep -q -w $symb ; then
-key=$(ipfs key gen -t rsa -s 3072 $symb)
-echo $symb: $key
-else
-key=$(ipfs key list -l | grep -w $symb | cut -d' ' -f1)
-echo ipns: http://127.0.0.1:8080/ipns/$key
-fi
-
-
 eval $(perl -S fullname.pl -a $qm | eyml)
 git config user.email $user@qtools.gq
 git config user.name "$fullname"
 echo "gituser: $(git config user.name) <$(git config user.email)>"
 tag=$(echo -n "$user@gradual.gq" | ipfs add -Q --raw-leaves --hash id --cid-base=base58btc)
+
+if [ -e _data/version.yml ]; then
+ sed -i -e "s,qm: .*,qm: $qm," _data/ipfs.yml
+ sed -i -e "s,version: .*,version: $ver," \
+     -e "s,tic: .*,tic: $tic," \
+     -e "s,name: .*,name: $firstname," \
+     -e "s,tag: .*,tag: $tag," _data/version.yml
+fi
 
 if IFS='' read -d '' msg <<EOT ; then true; fi
 $ver: '$time -- ${1:-make it essential} on $date ~ $firstname $lni.'
@@ -76,9 +71,17 @@ echo .
 
 
 # file it 
+if ! ipfs key list | grep -q -w $symb ; then
+key=$(ipfs key gen -t rsa -s 3072 $symb)
+echo $symb: $key
+else
+key=$(ipfs key list -l | grep -w $symb | cut -d' ' -f1)
+echo ipns: http://127.0.0.1:8080/ipns/$key
+fi
 pwd=$(pwd -P)
 qm=$(ipfs add -Q -r $pwd)
 ipfs name publish --allow-offline --key=$symb /ipfs/$qm &
+
 source=$(perl -S kwextract.pl -k source $0)
 parent=${source%/bin/*}
 gdparent=${parent%/*}
