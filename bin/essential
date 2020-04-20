@@ -79,6 +79,7 @@ echo dir: $gdparent/$bname
 if ! ipfs files stat --hash $gdparent 1>/dev/null 2>&1; then
 ipfs files mkdir -p $gdparent
 fi
-ipfs files rm -r $gdparent/$bname
+if ipfs files rm -r $gdparent/$bname; then true; fi
 ipfs files cp /ipfs/$qm $gdparent/$bname
+echo url: http://128.0.0.1:5001/webui/#/files/$gdparent/$bname
 
