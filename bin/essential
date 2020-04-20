@@ -81,5 +81,6 @@ ipfs files mkdir -p $gdparent
 fi
 if ipfs files rm -r $gdparent/$bname; then true; fi
 ipfs files cp /ipfs/$qm $gdparent/$bname
-echo url: http://128.0.0.1:5001/webui/#/files/$gdparent/$bname
+apiport=(ipfs config Addresses.API | cut -d'/' -f5)
+echo url: http://128.0.0.1:$apiport/webui/#/files$gdparent/$bname
 
