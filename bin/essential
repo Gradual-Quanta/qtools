@@ -7,6 +7,8 @@ set -e
 symb=qtools
 # dependencies :
 #   - ipfs
+#   - perl
+#   - ./bin
 #
 # $Source: /root/essential/qtools/bin/essential$
 if echo $0 | grep -q '/'; then
@@ -20,7 +22,14 @@ time=$(date +%T)
 date=$(date +%D)
 qm=$(ipfs add -Q -r .)
 
+gitid=$(git rev-parse --short HEAD)
+ver=$(version $0 | xyml scheduled)
+
 echo "${tic}: $qm" >> qm.log
+if [ -e _data/version.yml ]; then
+ sed -i -e "s,qm: .*,qm: $qm," _data/ipfs.yml
+ sed -i -e "s,version: .*,version: $ver," _data/version.yml
+fi
 if ! ipfs key list | grep -q -w $symb ; then
 key=$(ipfs key gen -t rsa -s 3072 $symb)
 echo $symb: $key
@@ -29,8 +38,6 @@ key=$(ipfs key list -l | grep -w $symb | cut -d' ' -f1)
 echo ipns: http://127.0.0.1:8080/ipns/$key
 fi
 
-gitid=$(git rev-parse --short HEAD)
-ver=$(version $0 | xyml scheduled)
 
 eval $(perl -S fullname.pl -a $qm | eyml)
 git config user.email $user@qtools.gq
