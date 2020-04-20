@@ -5,6 +5,7 @@ our $dbug=0;
 # -- Options parsing ...
 #
 my $all = 0;
+my $email,$yml;
 while (@ARGV && $ARGV[0] =~ m/^-/)
 {
   $_ = shift;
@@ -12,6 +13,7 @@ while (@ARGV && $ARGV[0] =~ m/^-/)
   if (/^-v(?:erbose)?/) { $verbose= 1; }
   elsif (/^-a(?:ll)?/) { $all= 1; }
   elsif (/^-y(?:ml)?/) { $yml= 1; }
+  elsif (/^-e(?:mail)?/) { $email= 1; }
   else                  { die "Unrecognized switch: $_\n"; }
 
 }
@@ -79,6 +81,8 @@ my @fullname = &fullname($bindata);
 #printf "%s.\n",YAML::Syck::Dump(\@fullname) if $dbug;
 if ($all) {
 printf "fullname: %s %s. %s\n",$fullname[0],substr($fullname[1],0,1),$fullname[-2];
+} elsif ($email) {
+  printf "%s%s+%s\@%s\n",lc(substr($fullname[0],0,1)),lc($fullname[-2]),$id7,'ydentity.ml';
 } else {
 printf "%s %s. %s\n",$fullname[0],substr($fullname[1],0,1),$fullname[-2];
 }
