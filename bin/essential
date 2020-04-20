@@ -34,6 +34,7 @@ ver=$(version $0 | xyml scheduled)
 
 eval $(perl -S fullname.pl -a $qm | eyml)
 git config user.email $user@qtools.gq
+git config user.name "$fullname"
 echo "gituser: $(git config user.name) <$(git config user.email)>"
 tag=$(echo -n "$user@gradual.gq" | ipfs add -Q --raw-leaves --hash id --cid-base=base58btc)
 
@@ -44,7 +45,7 @@ qm: $qm
 tag: $tag
 EOT
 
-echo "msg: $msg"  | tee RELEASE_NOTE.txt | sed -e '2,$s/^/  /'
+echo -e "Release: \"$ver $date\"\n$msg"  | tee RELEASE_NOTE.txt | sed -e '2,$s/^/  /'
 #exit -$$
 
 if git commit -a -m "$msg"; then
